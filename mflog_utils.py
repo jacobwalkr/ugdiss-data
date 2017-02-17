@@ -46,13 +46,17 @@ def stats_vals(values):
         'range': np.max(values) - np.min(values),
     }
 
+def extract_data_from_file(filename):
+    """ Returns ndarray of x, y, z data from file """
+    return np.loadtxt(filename, usecols=(1, 2, 3))
+
 def summarise_file(filename):
     """ Returns a dictionary of useful information and statistical measures from the given
         mflog file
     """
     summary = {}
     preamble = open(filename, 'r').readlines()[:5] # includes first data line
-    x, y, z = np.loadtxt(filename, usecols=(1, 2, 3), unpack=True)
+    x, y, z = extract_data_from_file(filename).T
 
     # Room
     summary['room'] = strip_file_line(preamble[0])
