@@ -50,13 +50,14 @@ def extract_data_from_file(filename):
     """ Returns ndarray of x, y, z data from file """
     return np.loadtxt(filename, usecols=(1, 2, 3))
 
-def summarise_file(filename):
+def summarise_file(filename, include_data=False):
     """ Returns a dictionary of useful information and statistical measures from the given
         mflog file
     """
     summary = {}
     preamble = open(filename, 'r').readlines()[:5] # includes first data line
-    x, y, z = extract_data_from_file(filename).T
+    data = extract_data_from_file(filename)
+    x, y, z = data.T
 
     # Room
     summary['room'] = strip_file_line(preamble[0])
@@ -77,7 +78,7 @@ def summarise_file(filename):
     summary['location'] = strip_file_line(preamble[1])
     summary['activity'] = strip_file_line(preamble[2])
 
-    return summary
+    return summary, data if include_data else summary
 
 # pylint assumes that all "module-level" variables are constants
 # pylint: disable=C0103
