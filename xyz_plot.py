@@ -1,7 +1,8 @@
 import sys
 import matplotlib
 import matplotlib.pyplot as plt
-from mflog_utils import extract_data_from_file, stats_vals
+import datetime
+import mflog_utils
 
 # Colour codes courtesy of Tableau and Randy Olson
 # http://www.randalolson.com/2014/06/28/how-to-make-beautiful-data-visualizations-in-python-with-matplotlib/
@@ -27,6 +28,17 @@ tableau20 = [(0.12156862745098039, 0.4666666666666667, 0.7058823529411765),
     (0.09019607843137255, 0.7450980392156863, 0.8117647058823529),
     (0.6196078431372549, 0.8549019607843137, 0.8980392156862745)]
 
+def save_meta_file(filename, file_summaries):
+    """ Takes dict of location key -> file summary and writes summaries to filename """
+    with open(filename, 'w') as file:
+        file.write('Generated: {}\n'.format(datetime.datetime.now().strftime('%c')))
+
+        for key, summary in file_summaries.items():
+            file.write('\n')
+            file.write('{}: {} at {}\n'.format(key, summary['room'], summary['time_string']))
+            file.write('Location details: {}\n'.format(summary['location']))
+            file.write('Activity: {}\n'.format(summary['activity']))
+
 def draw_xyz_plot(files, save=None):
     """ Draws a grid of plots, with a row for each file's x, y and z dimensions. `files` is a
         string list of names of .mflog files. If `save` is given and is a string, the plot is
@@ -46,9 +58,13 @@ def draw_xyz_plot(files, save=None):
     axes[-1, 1].set_xlabel(u'μT', fontweight='bold')
     axes[-1, 2].set_xlabel(u'μT', fontweight='bold')
 
+    location_keys = {}
+
     for (file_index, file_name) in enumerate(files):
-        data = extract_data_from_file(file_name).T
-        axes[file_index, 0].set_ylabel('L' + str(file_index), rotation=0, size='xx-large',
+        summary, data = mflog_utils.summarise_file(file_name, include_data=True)
+        location_key = 'L' + str(file_index)
+        location_keys[location_key] = summary
+        axes[file_index, 0].set_ylabel(location_key, rotation=0, size='xx-large',
             labelpad=40)
 
         for dimension in range(3):
@@ -70,12 +86,14 @@ def draw_xyz_plot(files, save=None):
             # these_axes.spines["right"].set_visible(False)
             # these_axes.spines["left"].set_visible(False)
 
-            these_axes.hist(data[dimension], 25, normed=1, color=tableau20[0::2][file_index % 20])
+            these_axes.hist(data.T[dimension], 25, normed=1, color=tableau20[0::2][file_index % 20],
+                linewidth=0)
 
     figure.tight_layout()
 
     if isinstance(save, str):
-        plt.savefig(save) # woo, duck typing
+        plt.savefig(save + '.png') # woo, duck typing
+        save_meta_file(save + '.txt', location_keys)
 
     plt.show()
 
