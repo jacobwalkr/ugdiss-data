@@ -102,7 +102,10 @@ def summarise_file(filename, include_data=False):
     summary['location'] = strip_file_line(preamble[1])
     summary['activity'] = strip_file_line(preamble[2])
 
-    return summary, data if include_data else summary
+    if include_data:
+        return summary, data
+
+    return summary
 
 # pylint assumes that all "module-level" variables are constants
 # pylint: disable=C0103
