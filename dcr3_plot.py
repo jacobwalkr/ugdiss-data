@@ -50,7 +50,7 @@ figure = plt.figure(figsize=(12, 9))
 ax = figure.add_subplot(111, projection='3d')
 ax.set_xlim([0, ARENA_SIZE])
 ax.set_ylim([0, ARENA_SIZE])
-#ax.set_zlim([0, ARENA_SIZE])
+ax.set_zlim([-ARENA_SIZE, 0])
 
 for spot_detail in zip(SPOT_POSITIONS, SPOT_COLOURS):
     spot = mpl.patches.Circle(spot_detail[0], SPOT_RADIUS, color=spot_detail[1], zorder=0)
@@ -92,7 +92,7 @@ for file in files:
     ]).reshape((1, 3)) * MAGNETIC_SCALE_FACTOR
 
 arrows = np.concatenate((arrow_positions, arrow_magnitudes), axis=1)
-plt.quiver(*arrows.T, color='black', zorder=100)
+plt.quiver(*arrows.T, color='black', length=3000, pivot='tail', zorder=100)
 figure.tight_layout()
 plt.savefig('Plots/{}.png'.format(first_file_filename))
 
