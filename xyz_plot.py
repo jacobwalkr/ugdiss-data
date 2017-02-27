@@ -15,7 +15,8 @@ def save_meta_file(filename, file_summaries):
             file.write('Location details: {}\n'.format(summary['location']))
             file.write('Activity: {}\n'.format(summary['activity']))
 
-def draw_xyz_plot(files, save=None, location_as_label=False, label_prefix='L'):
+def draw_xyz_plot(files, save=None, location_as_label=False, label_prefix='L', dim_height=3,
+    colors=mflog_utils.tableau20[0::2]):
     """ Draws a grid of plots, with a row for each file's x, y and z dimensions. `files` is a
         string list of names of .mflog files. If `save` is given and is a string, the plot is
         saved to `save`.
@@ -23,7 +24,7 @@ def draw_xyz_plot(files, save=None, location_as_label=False, label_prefix='L'):
     matplotlib.rc('font', family='Arial', weight='bold')
     plt.style.use('ggplot')
 
-    figure, axes = plt.subplots(len(files), 3, sharex='col', figsize=(12, 1*len(files)),
+    figure, axes = plt.subplots(len(files), 3, sharex='col', figsize=(12, dim_height*len(files)),
         squeeze=False)
 
     axes[0, 0].set_title('x', size='xx-large', position=[0.5, 1.05])
@@ -69,7 +70,8 @@ def draw_xyz_plot(files, save=None, location_as_label=False, label_prefix='L'):
 
             # these_axes.hist(data.T[dimension], 25, normed=1,
             #     color=mflog_utils.tableau20[0::2][file_index % 10], linewidth=0)
-            these_axes.hist(data.T[dimension], 25, normed=1, color='black', linewidth=0)
+            these_axes.hist(data.T[dimension], 25, normed=1,
+                color=colors[file_index % len(colors)], linewidth=0)
 
     figure.tight_layout()
 
