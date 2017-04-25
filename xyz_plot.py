@@ -82,12 +82,12 @@ def draw_xyz_plot(files, save=None, location_as_label=False, label_prefix='L', d
     plt.show()
 
 if __name__ == '__main__':
-    """ Takes at least one mflog filenames as argument, with the final argument being the filename
-        to save the resulting plot to.
+    """ Takes at least three arguments: a label prefix (to label each row), one or more MFLOG file
+        names and a file to save to
     """
-    files = sys.argv[1:-1]
+    files = sys.argv[2:-1]
 
     if len(files) > 0:
-        draw_xyz_plot(files, save=sys.argv[-1])#, save='plot.png')
+        draw_xyz_plot(files, save=sys.argv[-1], label_prefix=sys.argv[1])
     else:
         print('Expected list of files, got: ' + str(files))
