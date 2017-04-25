@@ -79,7 +79,8 @@ def summarise_file(filename, include_data=False):
         mflog file
     """
     summary = {}
-    preamble = open(filename, 'r').readlines()[:5] # includes first data line
+    # includes first data line in files without a frequency:
+    preamble = open(filename, 'r').readlines()[:6]
     data = extract_data_from_file(filename)
     x, y, z = data.T
 
@@ -87,13 +88,25 @@ def summarise_file(filename, include_data=False):
     summary['room'] = strip_file_line(preamble[0])
 
     # Time
-    summary['time'] = datetime.strptime(preamble[4].split(' ')[0], '%Y-%m-%dT%H:%M:%S.%f')
+    fifth_line = strip_file_line(preamble[4])
+    data_idx = 4 # conditionally overwritten in next if
+
+    if fifth_line in ['FASTEST', 'GAME', 'NORMAL', 'UI']:
+        summary['frequency_label'] = fifth_line
+        data_idx = 5
+    else:
+        summary['frequency_label'] = None
+
+    summary['time'] = datetime.strptime(preamble[data_idx].split(' ')[0], '%Y-%m-%dT%H:%M:%S.%f')
     summary['time_string'] = summary['time'].strftime('%H:%M:%S, %d %b %y')
 
     # Duration
     summary['duration'] = strip_file_line(preamble[3])
 
-    # x
+    # Sample count
+    summary['sample_count'] = len(x)
+
+    # Statistical measures
     summary['x'] = stats_vals(x)
     summary['y'] = stats_vals(y)
     summary['z'] = stats_vals(z)
