@@ -22,18 +22,18 @@ def draw_xyz_plot(files, save=None, location_as_label=False, label_prefix='L', d
         saved to `save`.
     """
     matplotlib.rc('font', family='Arial', weight='bold')
-    plt.style.use('ggplot')
+    #plt.style.use('ggplot')
 
     figure, axes = plt.subplots(len(files), 3, sharex='col', figsize=(12, dim_height*len(files)),
         squeeze=False)
 
-    axes[0, 0].set_title('x', size='xx-large', position=[0.5, 1.05])
-    axes[0, 1].set_title('y', size='xx-large', position=[0.5, 1.05])
-    axes[0, 2].set_title('z', size='xx-large', position=[0.5, 1.05])
+    axes[0, 0].set_title('x', size=24, position=[0.5, 1.05])
+    axes[0, 1].set_title('y', size=24, position=[0.5, 1.05])
+    axes[0, 2].set_title('z', size=24, position=[0.5, 1.05])
 
-    axes[-1, 0].set_xlabel(u'μT', fontweight='bold')
-    axes[-1, 1].set_xlabel(u'μT', fontweight='bold')
-    axes[-1, 2].set_xlabel(u'μT', fontweight='bold')
+    axes[-1, 0].set_xlabel(u'μT', fontweight='bold', fontsize=16)
+    axes[-1, 1].set_xlabel(u'μT', fontweight='bold', fontsize=16)
+    axes[-1, 2].set_xlabel(u'μT', fontweight='bold', fontsize=16)
 
     location_keys = {}
 
@@ -46,7 +46,7 @@ def draw_xyz_plot(files, save=None, location_as_label=False, label_prefix='L', d
             location_key = label_prefix + str(file_index)
 
         location_keys[location_key] = summary
-        axes[file_index, 0].set_ylabel(location_key, rotation=0, size='xx-large',
+        axes[file_index, 0].set_ylabel(location_key, rotation=0, size=20,
             labelpad=40)
 
         for dimension in range(3):
@@ -58,8 +58,10 @@ def draw_xyz_plot(files, save=None, location_as_label=False, label_prefix='L', d
                 right='off',
                 labelleft='off'
             )
+            these_axes.tick_params(axis='x', which='both', top='off', labelsize=16)
+            these_axes.xaxis.grid(True)
 
-            these_axes.get_xaxis().tick_bottom()
+            #these_axes.get_xaxis().tick_bottom()
             #these_axes.get_yaxis().tick_left()
 
             # Good to disable spines in default style
