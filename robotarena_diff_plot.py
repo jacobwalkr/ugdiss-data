@@ -21,6 +21,10 @@ for dirpath, _, filenames in os.walk('RobotArena'):
     else:
         run_number = int(dirpath_parts[1])
 
+    # only the first three
+    if run_number > 2:
+        break
+
     # Yay, order!
     print('Doing run #' + str(run_number))
     summaries[run_number] = {}
@@ -32,16 +36,15 @@ for dirpath, _, filenames in os.walk('RobotArena'):
 print('Got {} runs'.format(len(summaries)))
 
 # matplotlib setup
-mpl.rc('font', family='Arial', weight='bold')
+mpl.rc('font', family='Arial')
 plt.style.use('ggplot')
 
-fig, ax = plt.subplots(len(summaries), 1, figsize=(12, 3 * len(summaries) + 2), squeeze=False,
-    sharex='col')
-ax[-1, 0].set_xlabel(u'Position on path around robot arena', size='x-large')
-
-# Three of the brighter colours from Tableau
-# TODO: Adapt for more than 3 sets of readings
-colour_trio = [mflog_utils.tableau20[c] for c in [0, 2, 6]]
+fig, ax = plt.subplots(len(summaries), 3, figsize=(15, 2.5 * len(summaries) + 2), squeeze=False,
+    sharex='col', sharey='row')
+ax[-1, 1].set_xlabel('Position on path around robot arena', size='x-large')
+ax[0, 0].set_title('x')
+ax[0, 1].set_title('y')
+ax[0, 2].set_title('z')
 
 # Want a nice order (a zig-zag congruous path over the robot arena)
 order = ['0,0', '0,1', '0,2', '0,3',
@@ -49,40 +52,36 @@ order = ['0,0', '0,1', '0,2', '0,3',
          '2,0', '2,1', '2,2', '2,3',
          '3,3', '3,2', '3,1', '3,0']
 
+# bright colours then light colours
+colours = mflog_utils.tableau20[0::2] + mflog_utils.tableau20[1::2]
+
 for run_number, run in sorted(summaries.items()):
-    this_run = np.zeros((3, 16))
+    run_data = np.zeros((3, 16))
 
     for i, coords in enumerate(order):
-        this_run[:,i] = [
+        run_data[:,i] = [
             run[coords]['x']['median'],
             run[coords]['y']['median'],
             run[coords]['z']['median'],
         ]
 
     # Calculate a moving difference and add the first item (always zero) back in
-    this_run = np.insert(np.diff(this_run), 0, 0, axis=1)
+    run_data = np.insert(np.diff(run_data), 0, 0, axis=1)
 
     # Plot
-    for i in [0, 1, 2]: # x is 0, y is 1, z is 2
-        ax[run_number, 0].plot(range(0, 16), this_run[i], color=colour_trio[i], marker='.',
-            markersize=8, linewidth=2)
+    for dimension in [0, 1, 2]: # 0 is x, 1 is y, 2 is z
+        ax[run_number, dimension].plot(range(0, 16), run_data[dimension],
+            color=colours[run_number], marker='.', markersize=8, linewidth=2)
+        
+        # beautify
+        ax[run_number, dimension].set_xlim((0, 15))
+        ax[run_number, dimension].set_xticks(range(0, 16))
+        ax[run_number, dimension].grid(True, which='major', axis='x')
+        ax[run_number, dimension].tick_params(axis='both', labelsize=14)
 
-    # Make the plot prettier
-    ax[run_number, 0].set_ylabel('R{} (Δ μT)'.format(str(run_number)), rotation=0, size='x-large',
+    # beautify
+    ax[run_number, 0].set_ylabel(u'R{} (Δ μT)'.format(str(run_number)), rotation=0, size='x-large',
         labelpad=40)
-    ax[run_number, 0].set_xlim((0, 15))
-
-# Make legend
-legend_patches = [
-    mpatches.Patch(color=colour_trio[0], label='x axis'),
-    mpatches.Patch(color=colour_trio[1], label='y axis'),
-    mpatches.Patch(color=colour_trio[2], label='z axis'),
-]
-# TODO: Need to adapt this figure positioning for more sets of readings
-plt.legend(handles=legend_patches, loc="lower left", bbox_to_anchor=(0,0))
-
-# Crop edges of plots to data
-plt.xticks(range(0, 16))
 
 fig.tight_layout()
 
@@ -91,7 +90,7 @@ plt.savefig(sys.argv[1] + '.png')
 
 # Write meta to file
 with open(sys.argv[1] + '.txt', 'w') as file:
-    file.write('Generated: {} in Computer Room 3\n'.format(datetime.datetime.now().strftime('%c')))
+    file.write('Generated: {}\n'.format(datetime.datetime.now().strftime('%c')))
 
     for run_number, runs in summaries.items():
         file.write('\n')
