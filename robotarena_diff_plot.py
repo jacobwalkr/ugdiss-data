@@ -10,41 +10,34 @@ import mflog_utils
 
 summaries = {}
 
-# Read mflog files
-for dirpath, _, filenames in os.walk('RobotArena'):
-    # Assuming we never revisit the same directory
-    dirpath_parts = list(filter(None, dirpath.split('\\')))
+# run numbers to use
+run_numbers = [int(num) for num in sys.argv[1:-1]]
 
-    # First item yielded by walk is just the "RobotArena" directory. No want.
-    if len(dirpath_parts) < 2:
-        continue
-    else:
-        run_number = int(dirpath_parts[1])
+for run_number in run_numbers:
+    for dirpath, _, filenames in os.walk('RobotArena/' + str(run_number)):
+        # Yay, order!
+        print('Doing run #' + str(run_number))
+        summaries[run_number] = {}
 
-    # only the first three
-    if run_number > 2:
+        for file in filenames:
+            summary = mflog_utils.summarise_file(os.path.join(dirpath, file))
+            summaries[run_number][summary['location']] = summary
+
+        # just the once - no subdirs
         break
-
-    # Yay, order!
-    print('Doing run #' + str(run_number))
-    summaries[run_number] = {}
-
-    for file in filenames:
-        summary = mflog_utils.summarise_file(os.path.join(dirpath, file))
-        summaries[run_number][summary['location']] = summary
 
 print('Got {} runs'.format(len(summaries)))
 
 # matplotlib setup
 mpl.rc('font', family='Arial')
-plt.style.use('ggplot')
+#plt.style.use('ggplot')
 
 fig, ax = plt.subplots(len(summaries), 3, figsize=(15, 2.5 * len(summaries) + 2), squeeze=False,
     sharex='col', sharey='row')
 ax[-1, 1].set_xlabel('Position on path around robot arena', size='x-large')
-ax[0, 0].set_title('x')
-ax[0, 1].set_title('y')
-ax[0, 2].set_title('z')
+ax[0, 0].set_title('x', fontsize=16)
+ax[0, 1].set_title('y', fontsize=16)
+ax[0, 2].set_title('z', fontsize=16)
 
 # Want a nice order (a zig-zag congruous path over the robot arena)
 order = ['0,0', '0,1', '0,2', '0,3',
@@ -75,9 +68,9 @@ for run_number, run in sorted(summaries.items()):
         
         # beautify
         ax[run_number, dimension].set_xlim((0, 15))
-        ax[run_number, dimension].set_xticks(range(0, 16))
-        ax[run_number, dimension].grid(True, which='major', axis='x')
-        ax[run_number, dimension].tick_params(axis='both', labelsize=14)
+        ax[run_number, dimension].set_xticks(range(0, 16, 2))
+        ax[run_number, dimension].grid(True, which='major', axis='both')
+        ax[run_number, dimension].tick_params(axis='both', labelsize=18)
 
     # beautify
     ax[run_number, 0].set_ylabel(u'R{} (Δ μT)'.format(str(run_number)), rotation=0, size='x-large',
@@ -86,10 +79,10 @@ for run_number, run in sorted(summaries.items()):
 fig.tight_layout()
 
 # Write to file
-plt.savefig(sys.argv[1] + '.png')
+plt.savefig(sys.argv[-1] + '.png')
 
 # Write meta to file
-with open(sys.argv[1] + '.txt', 'w') as file:
+with open(sys.argv[-1] + '.txt', 'w') as file:
     file.write('Generated: {}\n'.format(datetime.datetime.now().strftime('%c')))
 
     for run_number, runs in summaries.items():
