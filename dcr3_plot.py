@@ -2,20 +2,26 @@
     robot arena in the Diamond's Computer Room 3.
 """
 import sys
-files = sys.argv[1:]
-argc = len(files)
-if argc != 16:
-    print('Expected 16 arguments but got ' + str(argc))
-    sys.exit(1)
-
+import os
 import numpy as np
 import matplotlib as mpl
-
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D # pylint: disable=W0611
 import mpl_toolkits.mplot3d.art3d as art3d
 import mflog_utils
 import datetime
+
+search_dir = sys.argv[1] # will look like an integer - in ./RobotArena/*
+output_fn = sys.argv[2]
+files = []
+
+for dirpath, _, filenames in os.walk(search_dir):
+    files += [os.path.join(dirpath, fn) for fn in filenames]
+    break
+
+if len(files) != 16:
+    print('Expected 16 files, found ' + len(files))
+    sys.exit(1)
 
 SPOT_SPACING = 780 # millimetres
 SPOT_RADIUS = 150 # millimetres
@@ -50,6 +56,9 @@ ax = figure.add_subplot(111, projection='3d')
 ax.set_xlim([0, ARENA_SIZE])
 ax.set_ylim([0, ARENA_SIZE])
 ax.set_zlim([-ARENA_SIZE, 0])
+ax.xaxis.set_ticklabels([])
+ax.yaxis.set_ticklabels([])
+ax.zaxis.set_ticklabels([])
 
 for spot_detail in zip(SPOT_POSITIONS, SPOT_COLOURS):
     spot = mpl.patches.Circle(spot_detail[0], SPOT_RADIUS, color=spot_detail[1], zorder=0)
@@ -93,10 +102,10 @@ for file in files:
 arrows = np.concatenate((arrow_positions, arrow_magnitudes), axis=1)
 plt.quiver(*arrows.T, color='black', length=3000, pivot='tail', zorder=100)
 figure.tight_layout()
-plt.savefig('Plots/{}.png'.format(first_file_filename))
+plt.savefig('{}.png'.format(output_fn))
 
 # Write meta file
-with open('Plots/{}.txt'.format(first_file_filename), 'w') as metafile:
+with open('{}.txt'.format(output_fn), 'w') as metafile:
     metafile.write('Generated: {}\n\n'.format(datetime.datetime.now().strftime('%c')))
     metafile.write('Readings taken from the robot arena in the Diamond Computer Room 3 at '
         + first_file_datetime + '\n')
