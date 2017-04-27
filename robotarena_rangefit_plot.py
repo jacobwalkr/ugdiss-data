@@ -8,7 +8,7 @@ import matplotlib.patches as mpatches
 from mpl_toolkits.mplot3d import Axes3D
 import mflog_utils
 
-TEST_RUN_NUMBER = 3
+TEST_RUN_NUMBER = sys.argv[1]
 
 # all data from each coordinate
 prior_data = {}
@@ -109,10 +109,10 @@ for dim_idx, dim in enumerate(dims):
 fig.tight_layout()
 
 # Write to file
-plt.savefig(sys.argv[1] + '.png')
+plt.savefig(sys.argv[2] + '.png')
 
 # Write meta to file
-with open(sys.argv[1] + '.txt', 'w') as file:
+with open(sys.argv[2] + '.txt', 'w') as file:
     file.write("Generated: {} from file taken in Computer Room 3's robot arena\n\n"
         .format(datetime.datetime.now().strftime('%c')))
 
