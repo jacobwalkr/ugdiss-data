@@ -20,7 +20,7 @@ rows = []
 for input_fn in input_files:
     with open(input_fn, 'r') as input_file:
         meta_lines = list(input_file)[2:]
-        num_meta_groups = int(len(meta_lines) / 4)
+        num_meta_groups = int((len(meta_lines) + 1) / 4)
 
         for meta_group_idx in range(0, num_meta_groups):
             start = meta_group_idx * 4
