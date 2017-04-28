@@ -31,5 +31,7 @@ for input_fn in input_files:
 
             rows.append([label, room, date, time])
 
-for row in rows:
-    print('{0} & {1} & {2} & {3} \\\\'.format(*row))
+final_row = len(rows) - 1
+
+for i, row in enumerate(sorted(rows)):
+    print('{0} & {1} & {2} & {3}{4}'.format(*row, '\\\\' if i < final_row else ''))
