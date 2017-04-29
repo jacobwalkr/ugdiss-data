@@ -102,6 +102,11 @@ for file in files:
 arrows = np.concatenate((arrow_positions, arrow_magnitudes), axis=1)
 plt.quiver(*arrows.T, color='black', length=3000, pivot='tail', zorder=100)
 figure.tight_layout()
+
+# so all the arrows for RobotArena/0/* show on screen
+ax.azim = -20
+ax.elev = 35
+
 plt.savefig('{}.png'.format(output_fn))
 
 # Write meta file
