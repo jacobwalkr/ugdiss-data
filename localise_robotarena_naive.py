@@ -4,10 +4,12 @@ import mflog_utils
 import numpy as np
 import tabulate
 
+training_folders = ['RobotArena/{0}/'.format(run) for run in sys.argv[1].strip().split(',')]
+test_folders = ['RobotArena/{0}/'.format(run) for run in sys.argv[2].strip().split(',')]
+
 #=================================================================================================#
 # Prepare "training" data. Not strictly "training" data but I'm not sure what else to call it     #
 #=================================================================================================#
-training_folders = ['RobotArena/0/', 'RobotArena/1/']
 training_files = []
 
 for training_folder in training_folders:
@@ -30,9 +32,11 @@ for i, filename in enumerate(training_files):
 #=================================================================================================#
 # Run through test files and compare them to "training" data                                      #
 #=================================================================================================#
-test_folder = 'RobotArena/2/'
-test_files = [test_folder + f for f in os.listdir(test_folder)
-    if os.path.isfile(os.path.join(test_folder, f))]
+test_files = []
+
+for test_folder in test_folders:
+    test_files += [test_folder + f for f in os.listdir(test_folder)
+        if os.path.isfile(os.path.join(test_folder, f))]
 
 results = []
 
@@ -54,4 +58,4 @@ for i, filename in enumerate(test_files):
     results.append((test_location, result_location))
 
 #print('\n'.join([test + ';' + result for test, result in results]))
-print(tabulate.tabulate(results, headers=('Test location', 'Closest match')))
+print(tabulate.tabulate(results, headers=('Test', 'Closest match')))
