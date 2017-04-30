@@ -46,7 +46,7 @@ SPOT_COLOURS = [
 
 # How much to multiply magnetic readings by in the final plot (because they're in microtesla and
 # the plot scale is in millimetres)
-MAGNETIC_SCALE_FACTOR = 1
+MAGNETIC_SCALE_FACTOR = 25
 
 mpl.rc('font', family='Arial', weight='bold')
 #plt.style.use('ggplot')
@@ -55,7 +55,10 @@ figure = plt.figure(figsize=(12, 9))
 ax = figure.add_subplot(111, projection='3d')
 ax.set_xlim([0, ARENA_SIZE])
 ax.set_ylim([0, ARENA_SIZE])
-ax.set_zlim([-ARENA_SIZE, 0])
+ax.set_zlim([(-ARENA_SIZE*2/3), 0])
+ax.set_xlabel('X', fontsize=30)
+ax.set_ylabel('Y', fontsize=30)
+ax.set_zlabel('Z', fontsize=30)
 ax.xaxis.set_ticklabels([])
 ax.yaxis.set_ticklabels([])
 ax.zaxis.set_ticklabels([])
@@ -97,15 +100,15 @@ for file in files:
         summary['x']['mean'],
         summary['y']['mean'],
         summary['z']['mean'],
-    ]).reshape((1, 3)) * MAGNETIC_SCALE_FACTOR
+    ]).reshape((1, 3))
 
-arrows = np.concatenate((arrow_positions, arrow_magnitudes), axis=1)
-plt.quiver(*arrows.T, color='black', length=3000, pivot='tail', zorder=100)
+arrows = np.concatenate((arrow_positions, arrow_magnitudes * MAGNETIC_SCALE_FACTOR), axis=1)
+ax.quiver(*arrows.T, color='black', pivot='tail', zorder=100, arrow_length_ratio=0.1)
 figure.tight_layout()
 
 # so all the arrows for RobotArena/0/* show on screen
-ax.azim = -20
-ax.elev = 35
+ax.azim = -70
+#ax.elev = 35
 
 plt.savefig('{}.png'.format(output_fn))
 
