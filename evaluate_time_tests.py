@@ -16,10 +16,12 @@ tests = []
 
 for filename in files:
     summary, data = mflog_utils.summarise_file(filename, True)
-    tests.append([summary['duration'], summary['sample_count'], summary['x']['range'],
-        summary['x']['std']**2])
+    tests.append([summary['duration'], summary['sample_count'], summary['x']['median'],
+        summary['x']['range'], summary['x']['std']**2])
 
-print(tabulate.tabulate(tests, headers=('Duration', 'Samples', 'Range', 'Var(x)')))
+tests.sort()
+print(tabulate.tabulate(tests,
+    headers=('Duration', 'Samples', 'Median (x)', 'Range (x)', 'Var (x)')))
 
 with open('./TimeTesting/summary.csv', 'w') as out:
     for test in tests:
